@@ -2,25 +2,25 @@
 # dependencies and enviroment python
 
 # Clase_1
-/Ciencia_de_Datos/Clase_1/bin
-/Ciencia_de_Datos/Clase_1/lib
-/Ciencia_de_Datos/Clase_1/lib64
-/Ciencia_de_Datos/Clase_1/share
+Ciencia_de_Datos/Clase_1/bin
+Ciencia_de_Datos/Clase_1/lib
+Ciencia_de_Datos/Clase_1/lib64
+Ciencia_de_Datos/Clase_1/share
 
 # CLase_2 knn_ennv
-/Ciencia_de_Datos/Clase_2/program_1/knn_env/bin
-/Ciencia_de_Datos/Clase_2/program_1/knn_env/lib
-/Ciencia_de_Datos/Clase_2/program_1/knn_env/lib64
-/Ciencia_de_Datos/Clase_2/program_1/knn_env/share
-/Ciencia_de_Datos/Clase_2/program_1/knn_env/etc
+Ciencia_de_Datos/Clase_2/program_1/knn_env/bin
+Ciencia_de_Datos/Clase_2/program_1/knn_env/lib
+Ciencia_de_Datos/Clase_2/program_1/knn_env/lib64
+Ciencia_de_Datos/Clase_2/program_1/knn_env/share
+Ciencia_de_Datos/Clase_2/program_1/knn_env/etc
 
 # Clase_2 knn_small_dataset
-/Ciencia_de_Datos/Clase_2/program_1/knn_small_dataset/bin
-/Ciencia_de_Datos/Clase_2/program_1/knn_small_dataset/lib
-/Ciencia_de_Datos/Clase_2/program_1/knn_small_dataset/bin64
-/Ciencia_de_Datos/Clase_2/program_1/knn_small_dataset/share
+Ciencia_de_Datos/Clase_2/program_1/knn_small_dataset/bin
+Ciencia_de_Datos/Clase_2/program_1/knn_small_dataset/lib
+Ciencia_de_Datos/Clase_2/program_1/knn_small_dataset/bin64
+Ciencia_de_Datos/Clase_2/program_1/knn_small_dataset/share
 
 # Clase_2 movilens-node
 
-/Ciencia_de_Datos/Clase_2/program_1/movilens-node/node_modules
+Ciencia_de_Datos/Clase_2/movilens-node/node_modules
 
