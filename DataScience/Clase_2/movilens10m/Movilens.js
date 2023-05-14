@@ -124,6 +124,7 @@ const Pearson = (x1,x2) => {
   return NaN;
 }
 
+//* Cosine Similarity Distance */
 const cosineSimilarity = (x1,x2) => {
 
   const { user_id: user_idX1, item_id: item_idX1, ratings: ratingsX1 } = x1;
