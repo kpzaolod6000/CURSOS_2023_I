@@ -1,4 +1,5 @@
 const fs = require('fs');
+const prompt = require('prompt-sync')();
 const readline = require('readline');
 
 //* Manhattan Distance */
@@ -33,7 +34,7 @@ const Manhattan = (x1, x2) => {
   return NaN;
 };
 
-//* Manhattan Distance */
+//* Euclidean Distance */
 
 const Euclidean = (x1,x2) => {
   const { user_id: user_idX1, item_id: item_idX1, ratings: ratingsX1 } = x1;
@@ -57,7 +58,7 @@ const Euclidean = (x1,x2) => {
       accumulator += ((valueRatingsX1 - valueRatingsX2)**2);
       return accumulator;
     }, 0);
-    return result;
+    return Math.sqrt(result);
   }
 
   // console.log("sin interseccion");
@@ -193,24 +194,26 @@ const knn = (data,username,k,__callback__,inverse) => {
   return result;
 }
 
-const dataStruct = {};
+const ratingStruct = {};
 
-const rl = readline.createInterface({
+//** Read Ratings */
+
+const rl_ratings = readline.createInterface({
   input: fs.createReadStream('/home/judal/Documentos/CURSOS_2023_I/DataScience/resources/data-10mb/ratings.dat', 'utf8')
 });
 
-rl.on('line', (line) => {
+rl_ratings.on('line', (line) => {
   const columns = line.split('::');
 
   const user_id = parseInt(columns[0]);
   const item_id = parseInt(columns[1]);
   const rating = parseFloat(columns[2]);
 
-  if (dataStruct[user_id]) {
-    dataStruct[user_id].item_id.push(item_id);
-    dataStruct[user_id].ratings.push(rating);
+  if (ratingStruct[user_id]) {
+    ratingStruct[user_id].item_id.push(item_id);
+    ratingStruct[user_id].ratings.push(rating);
   } else {
-    dataStruct[user_id] = {
+    ratingStruct[user_id] = {
       user_id,
       item_id: [item_id],
       ratings: [rating]
@@ -218,12 +221,12 @@ rl.on('line', (line) => {
   }
 });
 
-rl.on('close', () => {
+rl_ratings.on('close', () => {
   // console.log(Object.values(dataStruct));
 
-  console.log("DATA SCIENCE");
+  console.log("DATA MOVILENS 10M");
 
-  const data = [...Object.values(dataStruct)];
+  const dataRatings = [...Object.values(ratingStruct)];
   // data.forEach(element => { // codigo que demuestra si existen calificacion con 0
   //   const boolss = element.ratings.every(elem => elem != 0);
   //   console.log(element.ratings);
@@ -233,29 +236,152 @@ rl.on('close', () => {
   //   }
   // });
 
-  console.log("data",data[0]);
-  console.log("data",data[1]);
+  console.log("1) Hallar Distancias entre Usuarios");
+  console.log("2) Hallar KNN");
+  console.log("3) Ver nombre de las peliculas");
+  console.log("Pulse q para salir");
+  let input = prompt('Selecciona la opcion que desea procesar: ');
 
-  const person = data.filter((element) => element.user_id == 1 || element.user_id == 2);
+  while (input != "q") {
+    try {
+      if (input == 1) {
 
-  console.log("La distancia Manhattan es: ",Manhattan(person[0],person[1]));
-  console.log("La distancia Euclideana es: ",Euclidean(person[0],person[1]));
-  console.log("La distancia Pearson es: ",  Pearson(person[0],person[1]));
+        let continue_dist = "yes" ;
+        while (continue_dist == "yes") {
+          console.log("1) Distancia Manhattan");
+          console.log("2) Distancia Euclideana");
+          console.log("3) Distancia Aproximcion de la Correlacion de Pearson");
+          console.log("4) Distancia Similitud del Coseno");
+          console.log("Pulse q para salir");
+          let inputDist = prompt('Selecciona la opcion que desea procesar: ');
+          let continue_ = "yes";
+
+          while (inputDist != "q" && continue_ == "yes") {
+            
+            let user_1 = prompt('Escriba el id del usuario 1: ');
+            let user_2 = prompt('Escriba el id del usuario 2: ');
+            const person = dataRatings.filter((element) => element.user_id == parseInt(user_1) || element.user_id == parseInt(user_2));
+
+            if (inputDist == 1) {
+              console.log("La distancia Manhattan entre los usuarios ",user_1,"y",user_2,"es: ",Manhattan(person[0],person[1]));
+            }else if (inputDist == 2) {
+              console.log("La distancia Eclidean entre los usuarios ",user_1,"y",user_2,"es: ",Euclidean(person[0],person[1]));
+            }else if (inputDist == 3) {
+              console.log("La distancia Pearson entre los usuarios ",user_1,"y",user_2,"es: ",Pearson(person[0],person[1]));
+            }else if (inputDist == 4) {
+              console.log("La distancia Cosine Similarity entre los usuarios ",user_1,"y",user_2,"es: ",cosineSimilarity(person[0],person[1]));
+            }else{
+              console.log("Error no existe dicha opcion");
+            }
+            continue_ = prompt('Desea continuar escriba "yes" sino "no": ');
+          }
+          continue_dist = prompt('Desea hallar mas distancias escriba "yes" sino "no": ');
+        }
+        
+        
+      }else if (input == 2){
+
+        let continue_dist = "yes" ;
+        while (continue_dist == "yes") {
+          console.log("1) Usando la Distancia Manhattan");
+          console.log("2) Usando la Distancia Euclideana");
+          console.log("3) Usando la Distancia Aproximcion de la Correlacion de Pearson");
+          console.log("4) Usando la Distancia Similitud del Coseno");
+          console.log("Pulse q para salir");
+          let inputDist = prompt('Selecciona la distancia que desea procesar: ');
+          let continue_ = "yes";
+
+          while (inputDist != "q" && continue_ == "yes") {
+            
+            let user_1 = prompt('Escriba el id del usuario: ');
+            
+            const personTest = dataRatings.filter((element) => element.user_id == user_1);
+
+            if (inputDist == 1) {
+              console.time("Execution time");
+              let reNeighbors = knn(dataRatings,personTest[0],5,Manhattan,true);
+              console.timeEnd("Execution time");
+              console.log("Los vecinos mas cercanos de ",user_1," usando la distancia manhattan: ",reNeighbors);
+            }else if (inputDist == 2) {
+              console.time("Execution time");
+              let reNeighbors = knn(dataRatings,personTest[0],5,Euclidean,true);
+              console.timeEnd("Execution time");
+              console.log("Los vecinos mas cercanos de ",user_1," usando la distancia euclideana: ",reNeighbors);
+            }else if (inputDist == 3) {
+              
+              console.time("Execution time");
+              let reNeighbors = knn(dataRatings,personTest[0],5,Pearson,false);
+              console.timeEnd("Execution time");
+              console.log("Los vecinos mas cercanos de ",user_1," usando la distancia Pearson: ",reNeighbors);
+            }else if (inputDist == 4) {
+              
+              console.time("Execution time");
+              let reNeighbors = knn(dataRatings,personTest[0],5,cosineSimilarity,false);
+              console.timeEnd("Execution time");
+              console.log("Los vecinos mas cercanos de ",user_1," usando la distancia Cosine Similarity: ",reNeighbors);
+            }else{
+              console.log("Error no existe dicha opcion");
+            }
+            continue_ = prompt('Desea continuar escriba "yes" sino "no": ');
+          }
+          continue_dist = prompt('Desea hallar mas knn escriba "yes" sino "no": ');
+        }
+        
+
+      }
+      // const data = fs.readFileSync('./data/movies.json', 'utf8');
+      // const jsonObject = JSON.parse(data);
+      // console.log('JSON file contents:', jsonObject);
+  
+      // const input = prompt('Enter a number:');
+      // console.log(jsonObject[input]);
+  
+    } catch (err) {
+      console.error('Error reading file:', err);
+    }
+
+    console.log("1) Hallar Distancias entre Usuarios");
+    console.log("2) Hallar KNN");
+    console.log("3) Ver nombre de las peliculas");
+    console.log("Pulse q para salir");
+    input = prompt('Selecciona la opcion que desea procesar: ');
+  }
+
+ 
 
 
-  const personTest = data.filter((element) => element.user_id == 1);
-  let reNeighbors = knn(data,personTest[0],5,Manhattan,true)
-  console.log("Los vecinos mas cercanos de K usando la distancia manhattan: ",reNeighbors);
+  // console.log("data",dataRatings[0]);
+  // console.log("data",dataRatings[1]);
+
+  // const person = dataRatings.filter((element) => element.user_id == 1 || element.user_id == 2);
+
+  // console.log("La distancia Manhattan es: ",Manhattan(person[0],person[1]));
+  // console.log("La distancia Euclideana es: ",Euclidean(person[0],person[1]));
+  // console.log("La distancia Pearson es: ",  Pearson(person[0],person[1]));
+  // console.log("La distancia similitud del coseno es: ",  cosineSimilarity(person[0],person[1]));
+
+
+  // const personTest = dataRatings.filter((element) => element.user_id == 50);
+  // console.time("Execution time");
+  // let reNeighbors = knn(dataRatings,personTest[0],5,Manhattan,true);
+  // console.timeEnd("Execution time");
+  // console.log("Los vecinos mas cercanos de K usando la distancia manhattan: ",reNeighbors);
   
-  reNeighbors = knn(data,personTest[0],10,Euclidean,true)
-  console.log("Los vecinos mas cercanos de K usando la distancia euclideana: ",reNeighbors);
+  // console.time("Execution time");
+  // reNeighbors = knn(dataRatings,personTest[0],10,Euclidean,true);
+  // console.timeEnd("Execution time");
+  // console.log("Los vecinos mas cercanos de K usando la distancia euclideana: ",reNeighbors);
   
-  reNeighbors = knn(data,personTest[0],10,Pearson,false)
-  console.log("Los vecinos mas cercanos de K usando la distancia Pearson: ",reNeighbors);
+  // console.time("Execution time");
+  // reNeighbors = knn(dataRatings,personTest[0],10,Pearson,false);
+  // console.timeEnd("Execution time");
+  // console.log("Los vecinos mas cercanos de K usando la distancia Pearson: ",reNeighbors);
   
+  // console.time("Execution time");
+  // reNeighbors = knn(dataRatings,personTest[0],10,cosineSimilarity,false);
+  // console.timeEnd("Execution time");
+  // console.log("Los vecinos mas cercanos de K usando la distancia similitud del coseno: ",reNeighbors);
   
-  reNeighbors = knn(data,personTest[0],10,cosineSimilarity,false)
-  console.log("Los vecinos mas cercanos de K usando la distancia similitud del coseno: ",reNeighbors);
-  
+
 
 });
