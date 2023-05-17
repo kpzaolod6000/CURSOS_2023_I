@@ -146,6 +146,87 @@ const Pearson = (x1,x2,inCommon) => {
   const { user_id: user_idX1, item_id: item_idX1, ratings: ratingsX1 } = x1;
   const { user_id: user_idX2, item_id: item_idX2, ratings: ratingsX2 } = x2;
 
+  console.log("item X1: ", item_idX1);
+  console.log("item X2: ", item_idX2);
+
+  const intersection = item_idX1?.filter((element) =>
+    item_idX2?.includes(element)
+  );
+
+  console.log("interseccion: ", intersection);
+
+  //verificar si la interseccion solo contiene un valor
+
+  if (intersection.length > inCommon) {
+    let x_y = 0; //x*y
+    let s_x = 0; // sumatoria(x)
+    let s_y = 0; // sumatoria(y)
+    let s_x2 = 0; // sumatoria de cuadrados(x)
+    let s_y2 = 0; // sumatoria de cuadrados(x)
+    intersection.forEach(element => {
+      const idxX1 = item_idX1?.findIndex((elem) => elem === element);
+      const idxX2 = item_idX2?.findIndex((elem) => elem === element);
+      const valueRatingsX1 = ratingsX1[idxX1];
+      const valueRatingsX2 = ratingsX2[idxX2];
+
+      console.log("value 1:", valueRatingsX1);
+      console.log("value 2:", valueRatingsX2);
+
+      x_y += (valueRatingsX1 * valueRatingsX2);
+      s_x += valueRatingsX1;
+      s_y += valueRatingsX2;
+      s_x2 += valueRatingsX1**2;
+      s_y2 += valueRatingsX2**2;
+    });
+    const n = intersection.length;
+
+    console.log("n: ", n);
+    console.log("x*y: ", x_y);
+    console.log("sumatoria(x): ", s_x);
+    console.log("sumatoria(y): ", s_y);
+    console.log("sumatoria de cuadrados(x): ", s_x2);
+    console.log("sumatoria de cuadrados(y): ", s_y2);
+  
+    const s_x_s_y = (s_x * s_y)/n; // sumatoria(x*y)/n
+    const s_x2N = (s_x**2)/n; // sumatoria de X al cuadrado sobre n
+    const s_y2N = (s_y**2)/n; // sumatoria de Y al cuadrado sobre n
+
+    console.log(" sumatoria(x*y)/n: ", s_x_s_y);
+    console.log(" sumatoria de X al cuadrado sobre n: ", s_x2N);
+    console.log(" sumatoria de Y al cuadrado sobre n: ", s_y2N);
+  
+
+    const numerator = (x_y - s_x_s_y);
+    const denominator = (Math.sqrt(s_x2 - s_x2N) * Math.sqrt(s_y2 - s_y2N));
+    console.log("numerator:",numerator);
+    console.log("denominator:",denominator);
+    // console.log(Math.sqrt(s_x2 - s_x2N));
+    // console.log(Math.sqrt(s_y2 - s_y2N));
+    // console.log("--- ",x_y);
+    // console.log("****",s_x_s_y);
+    
+    if (denominator == 0) return 0;
+    
+    const r = numerator/denominator;
+
+    if (r>1) return 1.0
+
+    console.log("r: ", r);
+
+    return r;
+  }
+
+  // console.log("-------------------------------sin interseccion-------------------------------");
+
+  return NaN;
+}
+
+//* Pearson Distance */
+
+const Pearsonv2 = (x1,x2,inCommon) => {
+  const { user_id: user_idX1, item_id: item_idX1, ratings: ratingsX1 } = x1;
+  const { user_id: user_idX2, item_id: item_idX2, ratings: ratingsX2 } = x2;
+
   const intersection = item_idX1?.filter((element) =>
     item_idX2?.includes(element)
   );
@@ -190,6 +271,8 @@ const Pearson = (x1,x2,inCommon) => {
     if (denominator == 0) return 0;
     
     const r = numerator/denominator;
+    
+    if (r>1) return 1.0
 
     return r;
   }
@@ -199,8 +282,73 @@ const Pearson = (x1,x2,inCommon) => {
   return NaN;
 }
 
+
 //* Cosine Similarity Distance */
 const cosineSimilarity = (x1,x2,inCommon) => {
+
+  const { user_id: user_idX1, item_id: item_idX1, ratings: ratingsX1 } = x1;
+  const { user_id: user_idX2, item_id: item_idX2, ratings: ratingsX2 } = x2;
+
+  console.log("item X1: ", item_idX1);
+  console.log("item X2: ", item_idX2);
+
+  const intersection = item_idX1?.filter((element) =>
+    item_idX2?.includes(element)
+  );
+
+  console.log("interseccion: ",  intersection);
+
+  //verificar si la interseccion solo contiene un valor
+
+  if (intersection.length > inCommon) {
+    
+    let x_y = 0;
+    let x2 = 0;
+    let y2 = 0;
+    
+    intersection.forEach(element => {
+      const idxX1 = item_idX1?.findIndex((elem) => elem === element);
+      const idxX2 = item_idX2?.findIndex((elem) => elem === element);
+      const valueRatingsX1 = ratingsX1[idxX1];
+      const valueRatingsX2 = ratingsX2[idxX2];
+
+      console.log("value 1:", valueRatingsX1);
+      console.log("value 2:", valueRatingsX2);
+      console.log("v1*v2",valueRatingsX1 * valueRatingsX2);
+
+      x_y += (valueRatingsX1 * valueRatingsX2);
+      x2 += valueRatingsX1**2;
+      y2 += valueRatingsX2**2;
+      
+      console.log("sum(v1*v2)",x_y);
+    });
+
+    console.log("x*y: ", x_y);
+    console.log("sumatoria de cuadrados(x): ", x2);
+    console.log("sumatoria de cuadrados(y): ", y2);
+  
+    const numerator = (x_y);
+    const denominator = (Math.sqrt(x2) * Math.sqrt(y2));
+
+    console.log("numerator:",numerator);
+    console.log("denominator:",denominator);
+    
+    if (denominator == 0) return 0;
+  
+    const cos_ = numerator/denominator;
+    return cos_;
+  }
+
+  // console.log("-------------------------------sin interseccion-------------------------------");
+
+  return NaN;
+
+}
+
+
+
+//* Cosine Similarity Distance */
+const cosineSimilarityv2 = (x1,x2,inCommon) => {
 
   const { user_id: user_idX1, item_id: item_idX1, ratings: ratingsX1 } = x1;
   const { user_id: user_idX2, item_id: item_idX2, ratings: ratingsX2 } = x2;
@@ -235,6 +383,8 @@ const cosineSimilarity = (x1,x2,inCommon) => {
     if (denominator == 0) return 0;
   
     const cos_ = numerator/denominator;
+
+    if (cos_>1.0) return 1.0;
     return cos_;
   }
 
@@ -272,7 +422,7 @@ const ratingStruct = {};
 //** Read Ratings */
 
 const rl_ratings = readline.createInterface({
-  input: fs.createReadStream('/home/judal/Desktop/CURSOS_2023_I/DataScience/resources/data-10mb/ratings.dat', 'utf8')
+  input: fs.createReadStream('/home/judal/Documentos/CURSOS_2023_I/DataScience/resources/data-10mb/ratings.dat', 'utf8')
 });
 
 rl_ratings.on('line', (line) => {
@@ -298,6 +448,7 @@ rl_ratings.on('close', () => {
   // console.log(Object.values(dataStruct));
 
   console.log("DATA MOVILENS 10M");
+  // console.log(ratingStruct["10000"]); // para verificar si extrajo bien en la estructura
 
   const dataRatings = [...Object.values(ratingStruct)];
   // data.forEach(element => { // codigo que demuestra si existen calificacion con 0
@@ -319,6 +470,8 @@ rl_ratings.on('close', () => {
   const person = dataRatings.filter((element) => element.user_id == x1 || element.user_id == x2);
 
   let pro = prompt("numero en comun: ");
+
+  //** para manhattan */
 //   while (pro != "q") {
 //     console.log("La distancia Manhattan es: ",Manhattan(person[0],person[1],pro));
 
@@ -334,36 +487,67 @@ rl_ratings.on('close', () => {
 //     x2 = prompt("usuario 2: ");
 //   }
 
-    while (pro != "q") {
-        console.log("La distancia Euclideana es: ",Euclidean(person[0],person[1],pro));
+//** para Ecuclideana */
 
-        const personTest = dataRatings.filter((element) => element.user_id == x1);
+    // while (pro != "q") {
+    //     console.log("La distancia Euclideana es: ",Euclidean(person[0],person[1],pro));
+
+    //     const personTest = dataRatings.filter((element) => element.user_id == x1);
         
-        console.time("Execution time");
-        reNeighbors = knn(dataRatings,personTest[0],10,Euclideanv2,pro,true);
-        console.timeEnd("Execution time");
-        console.log("Los vecinos mas cercanos de ", x1 ," usando la distancia euclideana: ",reNeighbors);pro = prompt("numero en comun: ");
-        if (pro == "q") break;
+    //     console.time("Execution time");
+    //     reNeighbors = knn(dataRatings,personTest[0],10,Euclideanv2,pro,true);
+    //     console.timeEnd("Execution time");
+    //     console.log("Los vecinos mas cercanos de ", x1 ," usando la distancia euclideana: ",reNeighbors);pro = prompt("numero en comun: ");
+    //     if (pro == "q") break;
 
-        x1 = prompt("usuario 1: ");
-        x2 = prompt("usuario 2: ");
-    }
+    //     x1 = prompt("usuario 1: ");
+    //     x2 = prompt("usuario 2: ");
+    // }
 
+//** para Pearson */
 
+  while (pro != "q") {
+    
+    console.log("La distancia Pearson es: ",  Pearson(person[0],person[1],pro));
 
-//   console.log("La distancia Pearson es: ",  Pearson(person[0],person[1],0));
+    const personTest = dataRatings.filter((element) => element.user_id == x1);
+    
+    console.time("Execution time");
+    reNeighbors = knn(dataRatings,personTest[0],10,Pearsonv2,pro,false);
+    console.timeEnd("Execution time");
+    
+    console.log("Los vecinos mas cercanos de ", x1 ," usando la distancia Pearson: ",reNeighbors);
+    pro = prompt("numero en comun: ");
+
+    if (pro == "q") break;
+
+    x1 = prompt("usuario 1: ");
+    x2 = prompt("usuario 2: ");
+  }
+
+//** para similiud del coseno */
+  // while (pro != "q") {
+    
+  //   console.log("La distancia Coseno es: ",  cosineSimilarity(person[0],person[1],pro));
+
+  //   const personTest = dataRatings.filter((element) => element.user_id == x1);
+    
+  //   console.time("Execution time");
+  //   reNeighbors = knn(dataRatings,personTest[0],10,cosineSimilarityv2,pro,false);
+  //   console.timeEnd("Execution time");
+    
+  //   console.log("Los vecinos mas cercanos de ", x1 ," usando la distancia Coseno: ",reNeighbors);
+  //   pro = prompt("numero en comun: ");
+
+  //   if (pro == "q") break;
+
+  //   x1 = prompt("usuario 1: ");
+  //   x2 = prompt("usuario 2: ");
+  // }
 //   console.log("La distancia similitud del coseno es: ",  cosineSimilarity(person[0],person[1],0));
 
   
-  // console.time("Execution time");
-  // reNeighbors = knn(dataRatings,personTest[0],10,Euclidean,true);
-  // console.timeEnd("Execution time");
-  // console.log("Los vecinos mas cercanos de K usando la distancia euclideana: ",reNeighbors);
-  
-  // console.time("Execution time");
-  // reNeighbors = knn(dataRatings,personTest[0],10,Pearson,false);
-  // console.timeEnd("Execution time");
-  // console.log("Los vecinos mas cercanos de K usando la distancia Pearson: ",reNeighbors);
+
   
   // console.time("Execution time");
   // reNeighbors = knn(dataRatings,personTest[0],10,cosineSimilarity,false);

@@ -7,11 +7,6 @@ const Manhattan = (x1, x2,inCommon) => {
   const { user_id: user_idX1, item_id: item_idX1, ratings: ratingsX1 } = x1;
   const { user_id: user_idX2, item_id: item_idX2, ratings: ratingsX2 } = x2;
 
-  // console.log(item_idX1);
-  // console.log(ratingsX1);
-  // console.log(item_idX2);
-  // console.log(ratingsX2);
-
   const intersection = item_idX1?.filter((element) =>
     item_idX2?.includes(element)
   );
@@ -19,18 +14,15 @@ const Manhattan = (x1, x2,inCommon) => {
 
   //verificar si la interseccion solo contiene un valor
 
-  if (intersection.length > inCommon) {
+  if (intersection.length >= inCommon) {
     const result = intersection.reduce((accumulator, currentValue) => {
       const idxX1 = item_idX1?.findIndex((elem) => elem === currentValue);
       const idxX2 = item_idX2?.findIndex((elem) => elem === currentValue);
       const valueRatingsX1 = ratingsX1[idxX1];
       const valueRatingsX2 = ratingsX2[idxX2];
 
-      // console.log("value x1: ",valueRatingsX1);
-      // console.log("value x2: ",valueRatingsX2);
       accumulator += Math.abs(valueRatingsX1 - valueRatingsX2);
-      // console.log(accumulator);
-      
+  
       return accumulator;
     }, 0);
 
@@ -43,7 +35,6 @@ const Manhattan = (x1, x2,inCommon) => {
 };
 
 //* Euclidean Distance */
-
 const Euclidean = (x1,x2,inCommon) => {
   const { user_id: user_idX1, item_id: item_idX1, ratings: ratingsX1 } = x1;
   const { user_id: user_idX2, item_id: item_idX2, ratings: ratingsX2 } = x2;
@@ -54,7 +45,7 @@ const Euclidean = (x1,x2,inCommon) => {
 
   //verificar si la interseccion solo contiene un valor
 
-  if (intersection.length > inCommon) {
+  if (intersection.length >= inCommon) {
     const result = intersection.reduce((accumulator, currentValue) => {
       const idxX1 = item_idX1?.findIndex((elem) => elem === currentValue);
       const idxX2 = item_idX2?.findIndex((elem) => elem === currentValue);
@@ -74,8 +65,8 @@ const Euclidean = (x1,x2,inCommon) => {
   return NaN;
 }
 
-//* Pearson Distance */
 
+//* Pearson Distance */
 const Pearson = (x1,x2,inCommon) => {
   const { user_id: user_idX1, item_id: item_idX1, ratings: ratingsX1 } = x1;
   const { user_id: user_idX2, item_id: item_idX2, ratings: ratingsX2 } = x2;
@@ -87,7 +78,7 @@ const Pearson = (x1,x2,inCommon) => {
 
   //verificar si la interseccion solo contiene un valor
 
-  if (intersection.length > inCommon) {
+  if (intersection.length >= inCommon) {
     let x_y = 0; //x*y
     let s_x = 0; // sumatoria(x)
     let s_y = 0; // sumatoria(y)
@@ -124,6 +115,8 @@ const Pearson = (x1,x2,inCommon) => {
     if (denominator == 0) return 0;
     
     const r = numerator/denominator;
+    
+    if (r>1) return 1.0
 
     return r;
   }
@@ -146,7 +139,7 @@ const cosineSimilarity = (x1,x2,inCommon) => {
 
   //verificar si la interseccion solo contiene un valor
 
-  if (intersection.length > inCommon) {
+  if (intersection.length >= inCommon) {
     
     let x_y = 0;
     let x2 = 0;
@@ -169,6 +162,8 @@ const cosineSimilarity = (x1,x2,inCommon) => {
     if (denominator == 0) return 0;
   
     const cos_ = numerator/denominator;
+
+    if (cos_>1.0) return 1.0;
     return cos_;
   }
 
@@ -177,7 +172,6 @@ const cosineSimilarity = (x1,x2,inCommon) => {
   return NaN;
 
 }
-
 
 
 //* KNN */
@@ -197,16 +191,110 @@ const knn = (data,username,k,__callback__,inCommon,inverse) => {
 
   inverse ? result.sort((a,b) => a[0] - b[0]) : result.sort((a,b) => b[0] - a[0])
 
-  // return result.slice(0, k);
-  return result;
+  return result.slice(0, k);
+  // return result;
 }
 
-const ratingStruct = {};
+//** MovieId to Name */
+const convertProductID2name = (id) =>{
+  // console.log(movieStruct);
+  return movieStruct[id].title;
+  // if id in self.productid2name:
+  //   return self.productid2name[id]
+  // else:
+  //   return id
+
+}
+
+//* Recommend */
+
+const recommend = (dataRatings,user,k,n_,__callback__,inCommon,inverse) => {
+  
+  const recommendations = {};
+  
+  const nearest = knn(dataRatings,user,k,__callback__,inCommon,inverse);
+
+  const userRatings = user.ratings;
+  const userItem = user.item_id;
+
+  const totalDistance = nearest.reduce((accumulator,currentValue) => {
+    accumulator += currentValue[0];
+    return accumulator;
+  },0.0)
+
+  nearest.forEach((neighbor) => {
+    const weight = neighbor[0] / totalDistance;
+    const neighbor_id = neighbor[1];
+
+    const neighbor_data = dataRatings.filter((elem) => elem.user_id == neighbor_id);
+
+    const neighborRatings = neighbor_data[0]?.ratings;
+    const neighborItem = neighbor_data[0]?.item_id;
+
+    // console.log(userItem);
+    // console.log(neighborItem);
+    // console.log(neighborRatings);
+    // console.log(weight);
+
+    const not_intersection = neighborItem?.filter((item) => !userItem?.includes(item));
+    // console.log(not_intersection);
+    
+    not_intersection.forEach((currentValue) => {
+      const idx = neighborItem.findIndex((item) => item === currentValue);
+      if (recommendations.hasOwnProperty(currentValue)) {
+        recommendations[currentValue] = recommendations[currentValue] + (neighborRatings[idx] * weight);
+      }else{
+        recommendations[currentValue] = (neighborRatings[idx] * weight);
+      }
+    });
+
+    // neighborItem.forEach((item) => {
+    //   if (condition) {
+        
+    //   }
+    // })
+
+  })
+
+  const id_movies = Object.keys(recommendations);
+  const recommendMovies = id_movies.map((id_movie) => {
+    return [convertProductID2name(id_movie),recommendations[id_movie]];
+  })
+
+  inverse ? recommendMovies.sort((a,b) => a[1] - b[1]) : recommendMovies.sort((a,b) => b[1] - a[1])
+
+  // console.log(nearest);
+  // console.log(totalDistance);
+  // console.log(recommendations);
+  // console.log(recommendations);
+  const userItemName = user.item_id.map((item) => {
+    return convertProductID2name(item);
+  });
+
+  console.log(userItemName);
+  return recommendMovies.slice(0,n_);
+}
+
+
+
 
 //** Read Ratings */
+const ratingStruct = {};
+var movieStruct = {};
+
+try {
+  const jsonData = fs.readFileSync('./data/movies.json', 'utf8');
+  const moviesArray = JSON.parse(jsonData);
+  movieStruct={...moviesArray}
+  // for (const movie of moviesArray) {
+  //   movieStruct[movie.name] = movie.value;
+  // }
+} catch (err) {
+  console.error('Error reading file:', err);
+}
 
 const rl_ratings = readline.createInterface({
-  input: fs.createReadStream('/home/judal/Desktop/CURSOS_2023_I/DataScience/resources/data-10mb/ratings.dat', 'utf8')
+  input: fs.createReadStream('/home/judal/Documentos/CURSOS_2023_I/DataScience/resources/data-10mb/ratings.dat', 'utf8')
 });
 
 rl_ratings.on('line', (line) => {
@@ -245,7 +333,7 @@ rl_ratings.on('close', () => {
 
   console.log("1) Hallar Distancias entre Usuarios");
   console.log("2) Hallar KNN");
-  console.log("3) Ver nombre de las peliculas");
+  console.log("3) Recomendar");
   console.log("Pulse q para salir");
   let input = prompt('Selecciona la opcion que desea procesar: ');
 
@@ -334,7 +422,60 @@ rl_ratings.on('close', () => {
           }
           continue_dist = prompt('Desea hallar mas knn escriba "yes" sino "no": ');
         }
-        
+      } else if(input == 3){
+
+        let continue_dist = "yes" ;
+        while (continue_dist == "yes") {
+          console.log("1) Usando la Distancia Manhattan");
+          console.log("2) Usando la Distancia Euclideana");
+          console.log("3) Usando la Distancia Aproximcion de la Correlacion de Pearson");
+          console.log("4) Usando la Distancia Similitud del Coseno");
+          console.log("Pulse q para salir");
+          let inputDist = prompt('Selecciona la distancia que desea procesar: ');
+          let continue_ = "yes";
+
+          while (inputDist != "q" && continue_ == "yes") {
+            
+            let user_1 = prompt('Escriba el id del usuario: ');
+            let inCommon = prompt('Escriba cuantos peliculas en comun deben tener: ');
+            let k_ = prompt('Escriba cuantos k nearest neighbor: ');
+            let n_ = prompt('Escriba cuantos numeros como maximo se hara las recomendaciones: ');
+            
+            const personTest = dataRatings.filter((element) => element.user_id == user_1);
+
+            if (inputDist == 1) {
+
+              console.time("Execution time");
+              let recommend_result = recommend(dataRatings,personTest[0],k_,n_,Manhattan,inCommon,false);
+              console.timeEnd("Execution time");
+              console.log("Las peliculas recomendados son: ",recommend_result);
+
+            }else if (inputDist == 2) {
+              
+              console.time("Execution time");
+              let recommend_result = recommend(dataRatings,personTest[0],k_,n_,Euclidean,inCommon,false);
+              console.timeEnd("Execution time");
+              console.log("Las peliculas recomendados son: ",recommend_result);
+
+            }else if (inputDist == 3) {
+              
+              console.time("Execution time");
+              let recommend_result = recommend(dataRatings,personTest[0],k_,n_,Pearson,inCommon,false);
+              console.timeEnd("Execution time");
+              console.log("Las peliculas recomendados son: ",recommend_result);
+            }else if (inputDist == 4) {
+              
+              console.time("Execution time");
+              let recommend_result = recommend(dataRatings,personTest[0],k_,n_,cosineSimilarity,inCommon,false);
+              console.timeEnd("Execution time");
+              console.log("Las peliculas recomendados son: ",recommend_result);
+            }else{
+              console.log("Error no existe dicha opcion");
+            }
+            continue_ = prompt('Desea continuar escriba "yes" sino "no": ');
+          }
+          continue_dist = prompt('Desea hallar mas knn escriba "yes" sino "no": ');
+        }
 
       }
       // const data = fs.readFileSync('./data/movies.json', 'utf8');
@@ -350,46 +491,9 @@ rl_ratings.on('close', () => {
 
     console.log("1) Hallar Distancias entre Usuarios");
     console.log("2) Hallar KNN");
-    console.log("3) Ver nombre de las peliculas");
+    console.log("3) Recomendar");
     console.log("Pulse q para salir");
     input = prompt('Selecciona la opcion que desea procesar: ');
   }
-
- 
-
-
-  // console.log("data",dataRatings[0]);
-  // console.log("data",dataRatings[1]);
-
-  // const person = dataRatings.filter((element) => element.user_id == 1 || element.user_id == 2);
-
-  // console.log("La distancia Manhattan es: ",Manhattan(person[0],person[1]));
-  // console.log("La distancia Euclideana es: ",Euclidean(person[0],person[1]));
-  // console.log("La distancia Pearson es: ",  Pearson(person[0],person[1]));
-  // console.log("La distancia similitud del coseno es: ",  cosineSimilarity(person[0],person[1]));
-
-
-  // const personTest = dataRatings.filter((element) => element.user_id == 50);
-  // console.time("Execution time");
-  // let reNeighbors = knn(dataRatings,personTest[0],5,Manhattan,true);
-  // console.timeEnd("Execution time");
-  // console.log("Los vecinos mas cercanos de K usando la distancia manhattan: ",reNeighbors);
-  
-  // console.time("Execution time");
-  // reNeighbors = knn(dataRatings,personTest[0],10,Euclidean,true);
-  // console.timeEnd("Execution time");
-  // console.log("Los vecinos mas cercanos de K usando la distancia euclideana: ",reNeighbors);
-  
-  // console.time("Execution time");
-  // reNeighbors = knn(dataRatings,personTest[0],10,Pearson,false);
-  // console.timeEnd("Execution time");
-  // console.log("Los vecinos mas cercanos de K usando la distancia Pearson: ",reNeighbors);
-  
-  // console.time("Execution time");
-  // reNeighbors = knn(dataRatings,personTest[0],10,cosineSimilarity,false);
-  // console.timeEnd("Execution time");
-  // console.log("Los vecinos mas cercanos de K usando la distancia similitud del coseno: ",reNeighbors);
-  
-
 
 });
