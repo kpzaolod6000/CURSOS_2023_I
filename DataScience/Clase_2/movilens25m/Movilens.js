@@ -309,27 +309,35 @@ try {
 }
 
 const rl_ratings = readline.createInterface({
-  input: fs.createReadStream('/home/judal/Documentos/CURSOS_2023_I/DataScience/resources/data-10mb/ratings.dat', 'utf8')
+  input: fs.createReadStream('/home/judal/Documentos/CURSOS_2023_I/DataScience/resources/ml-25m/ratings.csv', 'utf8')
 });
+
+let firstLine = true;
 
 rl_ratings.on('line', (line) => {
-  const columns = line.split('::');
+  if (firstLine) {
+    firstLine = false;
+  }else{
 
-  const user_id = parseInt(columns[0]);
-  const item_id = parseInt(columns[1]);
-  const rating = parseFloat(columns[2]);
+    const columns = line.split(',');
+    
+      const user_id = parseInt(columns[0]);
+      const item_id = parseInt(columns[1]);
+      const rating = parseFloat(columns[2]);
 
-  if (ratingStruct[user_id]) {
-    ratingStruct[user_id].item_id.push(item_id);
-    ratingStruct[user_id].ratings.push(rating);
-  } else {
-    ratingStruct[user_id] = {
-      user_id,
-      item_id: [item_id],
-      ratings: [rating]
-    };
+      if (ratingStruct[user_id]) {
+        ratingStruct[user_id].item_id.push(item_id);
+        ratingStruct[user_id].ratings.push(rating);
+      } else {
+        ratingStruct[user_id] = {
+          user_id,
+          item_id: [item_id],
+          ratings: [rating]
+        };
+      }
   }
 });
+
 
 rl_ratings.on('close', () => {
   // console.log(Object.values(dataStruct));

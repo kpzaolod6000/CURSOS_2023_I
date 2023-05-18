@@ -1,0 +1,16 @@
+{
+  "name": "movilens",
+  "version": "0.0.1",
+  "description": "\"Lectura de datos de 10 millones y buscar los knn mas cercanos\"",
+  "main": "Movilens.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "csv-parser": "^3.0.0",
+    "fs": "^0.0.1-security",
+    "prompt-sync": "^4.2.0"
+  }
+}
