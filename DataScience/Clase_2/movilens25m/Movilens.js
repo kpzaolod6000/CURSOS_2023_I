@@ -309,7 +309,7 @@ try {
 }
 
 const rl_ratings = readline.createInterface({
-  input: fs.createReadStream('/home/judal/Documentos/CURSOS_2023_I/DataScience/resources/ml-25m/ratings.csv', 'utf8')
+  input: fs.createReadStream('/home/judal/Desktop/CURSOS_2023_I/DataScience/resources/ml-25m/ratings.csv', 'utf8')
 });
 
 let firstLine = true;

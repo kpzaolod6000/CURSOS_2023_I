@@ -65,7 +65,7 @@ const tagsStruct = {};
 //** Read Movies */
 console.time("Execution time");
 
-const filePath = '/home/judal/Documentos/CURSOS_2023_I/DataScience/resources/ml-25m/movies.csv';
+const filePath = '/home/judal/Desktop/CURSOS_2023_I/DataScience/resources/ml-25m/movies.csv';
 
 fs.createReadStream(filePath)
 .pipe(csv())
